@@ -1,6 +1,7 @@
 package com.company.dpassignment1.ducks;
 
 
+import com.company.dpassignment1.flybehavior.FlyWithRocket;
 import com.company.dpassignment1.flybehavior.FlyWithWings;
 import com.company.dpassignment1.quackbehavior.Squeck;
 
@@ -9,7 +10,7 @@ public class RedheadDuck extends Duck {
     // the constructor of Redhead duck used to initialize
     // fly and quack behaviors of duck
     public RedheadDuck(){
-        flyBehavior = new FlyWithWings();
+        flyBehavior = new FlyWithRocket();
         quackBehavior = new Squeck();
     }
 

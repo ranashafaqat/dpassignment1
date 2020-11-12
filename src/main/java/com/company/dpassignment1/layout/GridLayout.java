@@ -7,7 +7,7 @@ import java.util.List;
 
 public class GridLayout extends Layout {
 
-    List childs = new ArrayList<Duck>();
+    List childs = new ArrayList<Duck>();    
     // displays the duck.. current implementation show the duck name.
     public String display(){
         return "Mallard Duck";
