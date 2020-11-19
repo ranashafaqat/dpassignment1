@@ -1,7 +1,7 @@
 package com.company.dpassignment1.layout;
 
 import com.company.dpassignment1.ducks.Duck;
-
+import java.util.ArrayList;
 public abstract class Layout extends Duck {
 
     Duck duck;
@@ -15,7 +15,8 @@ public abstract class Layout extends Duck {
         throw new UnsupportedOperationException();
     }
 
-    public void getChild(int Id){
+    public ArrayList<Duck> getChilds(){
+
         throw new UnsupportedOperationException();
     }
 }
