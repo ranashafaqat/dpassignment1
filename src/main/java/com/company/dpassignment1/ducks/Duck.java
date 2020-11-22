@@ -5,6 +5,8 @@ import com.company.dpassignment1.flybehavior.FlyBehavior;
 import com.company.dpassignment1.quackbehavior.QuackBehavior;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import java.util.List;
+
 /*
 *
 * This is an abstract class, acts as a parent class for all ducks.
@@ -14,7 +16,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 * */
 public abstract class Duck {
 
-    // these jason properties are required to send the response object to in front end
+    // these jSon properties are required to send the response object to in front end
     // Other than that they don't effect any working of our duck interface implemented
     // on server side.
     // *** id is used to identify multiple ducks added by user from frontend
@@ -28,6 +30,8 @@ public abstract class Duck {
     String quack;
     @JsonProperty("swim")
     String swim;
+    @JsonProperty("ducks")
+    List<Duck> ducks;
 
     // instances of interfaces defined in flybehavior package and quackbehavior package
     // that represent the changing behaviors of different ducks
@@ -108,8 +112,15 @@ public abstract class Duck {
         this.swim = swim;
     }
 
-
     public String getSwim() {
         return swim;
+    }
+
+    public List<Duck> getDucks() {
+        return ducks;
+    }
+
+    public void setDucks(List<Duck> ducks) {
+        this.ducks = ducks;
     }
 }
