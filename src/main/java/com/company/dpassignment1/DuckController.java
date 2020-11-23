@@ -1,4 +1,4 @@
-package com.company.dpassignment1;
+    package com.company.dpassignment1;
 
 import com.company.dpassignment1.ducks.*;
 import org.springframework.web.bind.annotation.*;
@@ -7,14 +7,17 @@ import java.util.ArrayList;
 import java.util.List;
 
 /*
-* This controller is used to receive requests from frontend
-* and to send back response to the frontend in json.
-* */
+ * This controller is used to receive requests from frontend
+ * and to send back response to the frontend in json.
+ * */
 @RestController
 public class DuckController {
 
     // list is created to maintain the list of objects of ducks created by used
     private List<Duck> ducks = new ArrayList<Duck>();
+
+    // AutoIncrementId
+    private int duckId = 0;
 
     // this function returns the list of ducks
     @CrossOrigin(origins = "http://localhost:4200")
@@ -44,7 +47,7 @@ public class DuckController {
             };
         }
 
-        new_duck.setId(ducks.size() + 1);
+        new_duck.setId(duckId++);
         new_duck.setName(new_duck.display());
         new_duck.setFly(new_duck.performFly());
         new_duck.setQuack(new_duck.performQuack());
@@ -58,9 +61,11 @@ public class DuckController {
     public void deleteDuck(@PathVariable("duckId") int duckId) {
 
         // iterating over all ducks and deleting the required one.
-        for (int i=0;i<ducks.size();i++) {
-            if (ducks.get(i).getId() == duckId) {
-                ducks.remove(i);
+        for (Duck duck : ducks) {
+            if (duck.getDucks() != null && duck.getDucks().size() > 0) {
+                duck.getDucks().removeIf(duckChild -> duckChild.getId() == duckId);
+            } else if (duck.getId() == duckId) {
+                ducks.remove(duck);
             }
         }
 
@@ -73,8 +78,14 @@ public class DuckController {
     @GetMapping("/api/duck/{duckId}")
     public Duck getDuckById(@PathVariable("duckId") int duckId) {
         for (Duck duck : ducks) {
-            if (duck.getId() == duckId) {
-                return duck;
+            if (duck.getDucks() != null && duck.getDucks().size() > 0) {
+                for (Duck duckChild : duck.getDucks()) {
+                    if (duckChild.getId() == duckId) {
+                       return duckChild;
+                    }
+                }
+            } else if (duck.getId() == duckId) {
+               return duck;
             }
         }
         return null;
@@ -85,10 +96,17 @@ public class DuckController {
     @PutMapping("/api/duck/{duckId}")
     public void updateDuck(@PathVariable("duckId") int duckId, @RequestBody DuckRequestDTO duckRequest) {
 
-        for (int i=0;i<ducks.size();i++) {
-            if (ducks.get(i).getId() == duckId) {
-                ducks.get(i).setFly(duckRequest.getFly());
-                ducks.get(i).setQuack(duckRequest.getQuack());
+        for (Duck duck : ducks) {
+            if (duck.getDucks() != null && duck.getDucks().size() > 0) {
+                for (Duck duckChild : duck.getDucks()) {
+                    if (duckChild.getId() == duckId) {
+                        duckChild.setFly(duckRequest.getFly());
+                        duckChild.setQuack(duckRequest.getQuack());
+                    }
+                }
+            } else if (duck.getId() == duckId) {
+                duck.setFly(duckRequest.getFly());
+                duck.setQuack(duckRequest.getQuack());
             }
         }
 
@@ -104,8 +122,9 @@ public class DuckController {
                 return null;
             }
         };
+        duck.setId(this.duckId++);
         Duck new_duck = new MallardDuck();
-        new_duck.setId(ducks.size() + 1);
+        new_duck.setId(this.duckId++);
         new_duck.setName(new_duck.display());
         new_duck.setFly(new_duck.performFly());
         new_duck.setQuack(new_duck.performQuack());
@@ -124,29 +143,39 @@ public class DuckController {
     public void addDuckLayout(@PathVariable("duckId") int duckId, @RequestBody DuckRequestDTO duck) {
 
         Duck new_duck;
-        if (duck.getName().equals("MallardDuck")) {
-            new_duck = new MallardDuck();
-        } else if (duck.getName().equals("RedheadDuck")) {
-            new_duck = new RedheadDuck();
-        } else if (duck.getName().equals("RubberDuck")) {
-            new_duck = new RubberDuck();
-        } else {
-            new_duck = new Duck() {
-                @Override
-                public String display() {
-                    return "New Duck";
-                }
-            };
+        switch (duck.getName()) {
+            case "MallardDuck":
+                new_duck = new MallardDuck();
+                break;
+            case "RedheadDuck":
+                new_duck = new RedheadDuck();
+                break;
+            case "RubberDuck":
+                new_duck = new RubberDuck();
+                break;
+            default:
+                new_duck = new Duck() {
+                    @Override
+                    public String display() {
+                        return "New Duck";
+                    }
+                };
+                break;
         }
 
-        new_duck.setId(ducks.size() + 1);
+        new_duck.setId(this.duckId++);
         new_duck.setName(new_duck.display());
         new_duck.setFly(new_duck.performFly());
         new_duck.setQuack(new_duck.performQuack());
         new_duck.setSwim(new_duck.swim());
-        ducks.get(duckId - 1).getDucks().add(new_duck);
-    }
 
+        for (Duck duckItem: ducks) {
+            if (duckItem.getId() == duckId) {
+
+                duckItem.getDucks().add(new_duck);
+            }
+        }
+    }
 
 
 }
