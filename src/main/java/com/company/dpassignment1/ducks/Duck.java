@@ -32,6 +32,8 @@ public abstract class Duck {
     String swim;
     @JsonProperty("ducks")
     List<Duck> ducks;
+    @JsonProperty("shapeLevel")
+    private int shapeLevel;
 
     // instances of interfaces defined in flybehavior package and quackbehavior package
     // that represent the changing behaviors of different ducks
@@ -122,5 +124,13 @@ public abstract class Duck {
 
     public void setDucks(List<Duck> ducks) {
         this.ducks = ducks;
+    }
+
+    public int getShapeLevel() {
+        return shapeLevel;
+    }
+
+    public void setShapeLevel(int shapeLevel) {
+        this.shapeLevel = shapeLevel;
     }
 }

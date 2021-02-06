@@ -1,10 +1,13 @@
-    package com.company.dpassignment1;
+package com.company.dpassignment1;
 
 import com.company.dpassignment1.ducks.*;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Scanner;
 
 /*
  * This controller is used to receive requests from frontend
@@ -15,6 +18,8 @@ public class DuckController {
 
     // list is created to maintain the list of objects of ducks created by used
     private List<Duck> ducks = new ArrayList<Duck>();
+    private List<Integer> undoDuckList = new ArrayList<>();
+    private List<Integer> redoDuckList = new ArrayList<>();
 
     // AutoIncrementId
     private int duckId = 0;
@@ -81,11 +86,11 @@ public class DuckController {
             if (duck.getDucks() != null && duck.getDucks().size() > 0) {
                 for (Duck duckChild : duck.getDucks()) {
                     if (duckChild.getId() == duckId) {
-                       return duckChild;
+                        return duckChild;
                     }
                 }
             } else if (duck.getId() == duckId) {
-               return duck;
+                return duck;
             }
         }
         return null;
@@ -102,11 +107,21 @@ public class DuckController {
                     if (duckChild.getId() == duckId) {
                         duckChild.setFly(duckRequest.getFly());
                         duckChild.setQuack(duckRequest.getQuack());
+                        if (duckChild.getShapeLevel() != duckRequest.getShapeLevel()) {
+                            undoDuckList.add(duckChild.getId());
+                            redoDuckList = new ArrayList<>();
+                        }
+                        duckChild.setShapeLevel(duckRequest.getShapeLevel());
                     }
                 }
             } else if (duck.getId() == duckId) {
                 duck.setFly(duckRequest.getFly());
                 duck.setQuack(duckRequest.getQuack());
+                if (duck.getShapeLevel() != duckRequest.getShapeLevel()) {
+                    undoDuckList.add(duck.getId());
+                    redoDuckList = new ArrayList<>();
+                }
+                duck.setShapeLevel(duckRequest.getShapeLevel());
             }
         }
 
@@ -169,7 +184,7 @@ public class DuckController {
         new_duck.setQuack(new_duck.performQuack());
         new_duck.setSwim(new_duck.swim());
 
-        for (Duck duckItem: ducks) {
+        for (Duck duckItem : ducks) {
             if (duckItem.getId() == duckId) {
 
                 duckItem.getDucks().add(new_duck);
@@ -177,5 +192,80 @@ public class DuckController {
         }
     }
 
+
+    // this function returns the list of duck names
+    @CrossOrigin(origins = "http://localhost:4200")
+    @GetMapping("/api/duck/all-names")
+    public String[] default_ducks() {
+        String ducks[] = new String[3];
+        try {
+            File myObj = new File("/home/rana/IdeaProjects/Duck-App/src/assets/images/list.txt");
+            Scanner myReader = new Scanner(myObj);
+            while (myReader.hasNextLine()) {
+                String data = myReader.nextLine();
+                System.out.println(data);
+            }
+
+            myReader.close();
+        } catch (FileNotFoundException e) {
+            System.out.println("An error occurred.");
+            e.printStackTrace();
+        }
+
+        return ducks;
+    }
+
+    @CrossOrigin(origins = "http://localhost:4200")
+    @GetMapping("/api/duck/actions")
+    public RecentAction getDuckActions() {
+        RecentAction recentAction = new RecentAction();
+        recentAction.setCanUndo(undoDuckList != null && undoDuckList.size() > 0);
+        recentAction.setCanRedo(redoDuckList != null && redoDuckList.size() > 0);
+        return recentAction;
+    }
+
+
+    @CrossOrigin(origins = "http://localhost:4200")
+    @PutMapping("/api/duck/actions/{action}")
+    public List<Duck> implementAction(@PathVariable("action") String actionType) {
+        if (actionType.equals("undo")) {
+            int undoDuckId = undoDuckList.get(undoDuckList.size() - 1);
+
+            for (Duck duck : ducks) {
+                if (duck.getDucks() != null && duck.getDucks().size() > 0) {
+                    for (Duck duckChild : duck.getDucks()) {
+                        if (duckChild.getId() == undoDuckId) {
+                            duckChild.setShapeLevel(duckChild.getShapeLevel() - 1);
+                            redoDuckList.add(duckChild.getId());
+                            undoDuckList.remove(undoDuckList.size() - 1);
+                        }
+                    }
+                } else if (duck.getId() == undoDuckId) {
+                    duck.setShapeLevel(duck.getShapeLevel() - 1);
+                    redoDuckList.add(duck.getId());
+                    undoDuckList.remove(undoDuckList.size() - 1);
+                }
+            }
+        } else if (actionType.equals("redo")) {
+            int redoDuckId = redoDuckList.get(redoDuckList.size() - 1);
+
+            for (Duck duck : ducks) {
+                if (duck.getDucks() != null && duck.getDucks().size() > 0) {
+                    for (Duck duckChild : duck.getDucks()) {
+                        if (duckChild.getId() == redoDuckId) {
+                            duckChild.setShapeLevel(duckChild.getShapeLevel() + 1);
+                            undoDuckList.add(duckChild.getId());
+                            redoDuckList.remove(redoDuckList.size()- 1);
+                        }
+                    }
+                } else if (duck.getId() == redoDuckId) {
+                    duck.setShapeLevel(duck.getShapeLevel() + 1);
+                    undoDuckList.add(duck.getId());
+                    redoDuckList.remove(redoDuckList.size()- 1);
+                }
+            }
+        }
+        return getDucks();
+    }
 
 }

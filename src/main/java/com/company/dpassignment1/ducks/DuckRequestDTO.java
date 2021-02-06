@@ -23,7 +23,8 @@ public class DuckRequestDTO {
     private String quack;
     @JsonProperty("swim")
     private String swim;
-
+    @JsonProperty("shapeLevel")
+    private int shapeLevel;
 
 /*
 * Setter and getter functions are defined below.
@@ -66,5 +67,13 @@ public class DuckRequestDTO {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public int getShapeLevel() {
+        return shapeLevel;
+    }
+
+    public void setShapeLevel(int shapeLevel) {
+        this.shapeLevel = shapeLevel;
     }
 }
