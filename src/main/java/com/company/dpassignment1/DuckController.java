@@ -268,4 +268,10 @@ public class DuckController {
         return getDucks();
     }
 
+
+    @CrossOrigin(origins = "http://localhost:4200")
+    @GetMapping("/api/duck/new/list")
+    public void clearDuckList() {
+       ducks = new ArrayList<>();
+    }
 }
